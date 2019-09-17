@@ -5,4 +5,4 @@ WORKDIR /app
 COPY ./ /app
 RUN apk update && apk add --virtual native-deps \
   g++ gcc libgcc libstdc++ linux-headers make python && \
-  npm install --quiet node-gyp -g
+  npm install --quiet node-gyp -g && npm install -g lerna
