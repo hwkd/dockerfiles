@@ -1,6 +1,7 @@
 # Builder
 FROM node:12-alpine
 ENV NODE_ENV=development
+ENV PATH=$PATH:/app/node_modules/.bin
 WORKDIR /app
 COPY ./ /app
 RUN apk update && apk add --virtual native-deps \

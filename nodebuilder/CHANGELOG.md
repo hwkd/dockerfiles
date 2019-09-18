@@ -15,4 +15,8 @@ The versioning convention is: NODE_VERSION.MINOR.PATCH, where:
 
 ## [12.1.0] - 2019-09-17
 ### Added
-- Lerna to allow bootstrapping monorepos.
+- Added lerna to allow bootstrapping monorepos.
+
+## [12.2.0] - 2019-09-18
+### Added
+- Added /app/node_modules/.bin to PATH environment variable.
