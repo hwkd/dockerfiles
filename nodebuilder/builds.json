@@ -1,0 +1,16 @@
+{
+  "owner": "hwkd",
+  "history": [
+    {
+      "image": "nodebuilder:14.0.0",
+      "version": "14.0.0",
+      "date": "2020-12-12T08:01:45.831Z",
+      "push": true,
+      "message": [
+        "update base image to node:14-alpine",
+        "remove lerna",
+        "clean npm cache"
+      ]
+    }
+  ]
+}

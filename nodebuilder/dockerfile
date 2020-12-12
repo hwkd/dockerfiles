@@ -1,9 +1,10 @@
 # Builder
-FROM node:12-alpine
+FROM node:14-alpine
 ENV NODE_ENV=development
 ENV PATH=$PATH:/app/node_modules/.bin
 WORKDIR /app
 COPY ./ /app
 RUN apk update && apk add --virtual native-deps \
   g++ gcc libgcc libstdc++ linux-headers make python && \
-  npm install --quiet node-gyp -g && npm install -g lerna
+  npm install --quiet node-gyp@3.7.0 -g && \
+  npm cache clean --force
