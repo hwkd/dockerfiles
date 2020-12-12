@@ -1,5 +1,0 @@
-#!/bin/bash
-version=12.2.0
-if docker build -t hwkd/nodebuilder:${version} -t hwkd/nodebuilder:latest .; then
-    docker push hwkd/nodebuilder:${version}
-fi
