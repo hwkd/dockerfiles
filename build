@@ -1,0 +1,125 @@
+#!/usr/bin/env node
+const fs = require("fs");
+const path = require("path");
+const chalk = require("chalk");
+const { hideBin } = require("yargs/helpers");
+const yargs = require("yargs/yargs")(hideBin(process.argv));
+const sh = require("shelljs");
+
+const log = console.log;
+const exec = sh.exec;
+
+yargs.version(false).command({
+  command: "$0 <package>",
+  desc: "Build docker image for specified package",
+  builder: (yargs) => {
+    yargs.positional("package", {
+      desc: "name of package to build",
+    });
+    yargs.option("v", {
+      desc: "Image version tag",
+      alias: "version",
+      demandOption: true,
+    });
+    yargs.option("p", {
+      desc: "push image to docker repository after build",
+      alias: "push",
+    });
+    yargs.option("m", {
+      desc: "log message for the build",
+      alias: "message",
+    });
+    return yargs;
+  },
+  handler: (argv) => {
+    ensureExist(argv.package, "dir");
+
+    const owner = "hwkd";
+    const imageToken = getImageToken(argv);
+    log(`${chalk.green("> Building image")} ${chalk.blue(imageToken)}`);
+
+    const buildResult = exec(
+      `docker build -t ${owner}/${imageToken} -t ${owner}/${argv.package}:latest ${argv.package}`
+    );
+
+    if (!execSuccess(buildResult)) {
+      log(`${chalk.red(`> Failed building image`)}`);
+      process.exit(1);
+    }
+
+    if (argv.p) {
+      const pushResult = exec(`docker push ${owner}/${imageToken}`);
+      if (!execSuccess(pushResult)) {
+        log(`${chalk.red(`> Failed pushing image to repository`)}`);
+        process.exit(1);
+      }
+    }
+
+    const historyFilePath = path.join(argv.package, "builds.json");
+    let buildHistory = {
+      owner,
+      history: [],
+    };
+    if (
+      fs.existsSync(historyFilePath) &&
+      fs.lstatSync(historyFilePath).isFile()
+    ) {
+      buildHistory = JSON.parse(
+        fs.readFileSync(historyFilePath, {
+          encoding: "utf8",
+        })
+      );
+    }
+
+    const history = {
+      image: imageToken,
+      version: argv.version,
+      date: new Date(),
+    };
+    if (argv.p) {
+      history.push = true;
+    }
+    if (argv.m) {
+      history.message = argv.m;
+    }
+
+    buildHistory.history.push(history);
+
+    fs.writeFileSync(
+      historyFilePath,
+      JSON.stringify(buildHistory, null, 2),
+      "utf8"
+    );
+
+    log(
+      `${chalk.green(`> Build image successful (${chalk.blue(imageToken)})`)}`
+    );
+  },
+});
+
+yargs.argv;
+
+function ensureExist(path, type = "file") {
+  if (!fs.existsSync(path)) {
+    log(chalk.red(`Path doesn't exist: ${path}`));
+    process.exit(1);
+  }
+
+  const lstat = fs.lstatSync(path);
+  if ((type === "dir" || type === "directory") && lstat.isFile()) {
+    log(chalk.red(`Path exists but is unexpected type`));
+    process.exit(1);
+  }
+  if (type === "file" && lstat.isDirectory()) {
+    log(chalk.red(`Path exists but is unexpected type`));
+    process.exit(1);
+  }
+}
+
+function getImageToken(argv) {
+  return `${argv.package}:${argv.version}`;
+}
+
+function execSuccess(result) {
+  return result.code === 0;
+}
