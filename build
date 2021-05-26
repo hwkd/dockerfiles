@@ -21,6 +21,11 @@ yargs.version(false).command({
       alias: "version",
       demandOption: true,
     });
+    yargs.option("u", {
+      desc: "Docker image ownder",
+      alias: "user",
+      demandOption: true,
+    });
     yargs.option("p", {
       desc: "push image to docker repository after build",
       alias: "push",
@@ -34,12 +39,11 @@ yargs.version(false).command({
   handler: (argv) => {
     ensureExist(argv.package, "dir");
 
-    const owner = "hwkd";
     const imageToken = getImageToken(argv);
     log(`${chalk.green("> Building image")} ${chalk.blue(imageToken)}`);
 
     const buildResult = exec(
-      `docker build -t ${owner}/${imageToken} -t ${owner}/${argv.package}:latest ${argv.package}`
+      `docker build -t ${argv.user}/${imageToken} -t ${argv.user}/${argv.package}:latest ${argv.package}`
     );
 
     if (!execSuccess(buildResult)) {
@@ -48,7 +52,7 @@ yargs.version(false).command({
     }
 
     if (argv.p) {
-      const pushResult = exec(`docker push ${owner}/${imageToken}`);
+      const pushResult = exec(`docker push ${argv.user}/${imageToken}`);
       if (!execSuccess(pushResult)) {
         log(`${chalk.red(`> Failed pushing image to repository`)}`);
         process.exit(1);
@@ -57,7 +61,7 @@ yargs.version(false).command({
 
     const historyFilePath = path.join(argv.package, "builds.json");
     let buildHistory = {
-      owner,
+      owner: argv.user,
       history: [],
     };
     if (

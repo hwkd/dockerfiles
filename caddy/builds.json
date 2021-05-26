@@ -1,0 +1,16 @@
+{
+  "owner": "hwkd",
+  "history": [
+    {
+      "image": "caddy:0.0.1",
+      "version": "0.0.1",
+      "date": "2021-05-26T14:04:15.255Z"
+    },
+    {
+      "image": "caddy:0.0.1",
+      "version": "0.0.1",
+      "date": "2021-05-26T14:08:27.600Z",
+      "push": true
+    }
+  ]
+}
