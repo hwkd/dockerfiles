@@ -22,7 +22,7 @@ yargs.version(false).command({
       demandOption: true,
     });
     yargs.option("u", {
-      desc: "Docker image ownder",
+      desc: "Docker image owner",
       alias: "user",
       demandOption: true,
     });
